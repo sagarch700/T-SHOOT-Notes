@@ -1,1 +1,46 @@
 ASA T-SHOOT notes
+
+no default-information in --> doesn't accept default routes
+
+Cut through Proxy
+aaa authentication include telnet inside 0 0
+aaa-server cisco protocol radius
+aaa-server cisco (dmz) host ip
+key abc
+aaa authtication include 0 0 0 0 cisco
+
+FTP Filtering
+class-map type inspect ftp l7cmap
+match request-command get
+policy-map type inspect ftp l7pmap
+class l7cmap
+reset log
+class-map cmap
+match port tcp eq ftp
+plicy-map pmap
+class cmap
+inspect ftp strict l7pmap
+service policy pmap interface inside
+
+BGP pass through: BGP with md5 through ASA will be problemtic cause : to inform ASA don't remove tcp option 19
+tcp-map tmap
+tcp-option range 19 19 allow
+ASA randomise sequence number also
+acl myacl permit tcp any any eq bgp
+acl myacl pemit tcp any eq 179 any
+class-map
+mactg acl myacl
+policy-map pmap
+class cmap
+set connection random-sequence-number disable
+set connection advanced-options tmap
+
+esp timeout is 10 minutes
+policy-map type inspect ipsec-pass-thru pmap
+parameters esp timeout 0:0:0
+policy-map global_policy
+class inspection_default
+inspect ipsec-pass-thru pmap
+
+
+
